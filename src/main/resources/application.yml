@@ -11,6 +11,13 @@ spring:
     url: jdbc:mysql://47.102.86.248:3306/easy_picture
     username: root
     password: woshiliduo123
+  # 开放更大的文件上传体积
+  servlet:
+    multipart:
+      max-file-size: 10MB
+
+#  profiles:
+#    active: local
 mybatis-plus:
   configuration:
     #Mybatis 配置
@@ -33,3 +40,12 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - com.muzi.easypicturebackend.controller
+# 对象存储配置（需要从腾讯云获取）
+cos:
+  client:
+    host: xxx
+    secretId: xxx
+    secretKey: xxx
+    region: xxx
+    bucket: xxx
+
