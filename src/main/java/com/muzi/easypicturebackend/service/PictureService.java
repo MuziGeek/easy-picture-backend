@@ -9,6 +9,7 @@ import com.muzi.easypicturebackend.model.entity.User;
 import com.muzi.easypicturebackend.model.vo.PictureVO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @author 57242
@@ -72,4 +73,6 @@ public interface PictureService extends IService<Picture> {
      * @param picture
      */
     void checkPictureAuth(User loginuser, Picture picture);
+
+    List<PictureVO> searchPictureByColor(Long spaceId, String picColor, User loginUser);
 }
