@@ -14,13 +14,14 @@ import com.muzi.easypicturebackend.model.entity.User;
 import com.muzi.easypicturebackend.model.vo.LoginUserVO;
 import com.muzi.easypicturebackend.model.vo.UserVO;
 import com.muzi.easypicturebackend.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-
+@Slf4j
 @RestController
 @RequestMapping("/user")
 public class UserController {

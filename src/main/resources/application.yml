@@ -8,7 +8,7 @@ server:
         max-age: 2592000
 spring:
   application:
-    name: yu-picture-backend
+    name: easy-picture-backend
   # 数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -31,7 +31,33 @@ spring:
     port: 6379
     password: woshiliduo123
     timeout: 5000ms
-
+  # 空间图片分表
+  shardingsphere:
+    datasource:
+      names: easy_picture
+      easy_picture:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://47.102.86.248:3306/easy_picture
+        username: root
+        password: woshiliduo123
+    rules:
+      sharding:
+        tables:
+          picture:
+            actual-data-nodes: easy_picture.picture  # 动态分表
+            table-strategy:
+              standard:
+                sharding-column: spaceId
+                sharding-algorithm-name: picture_sharding_algorithm  # 使用自定义分片算法
+        sharding-algorithms:
+          picture_sharding_algorithm:
+            type: CLASS_BASED
+            props:
+              strategy: standard
+              algorithmClassName: com.muzi.easypicturebackend.manager.sharding.PictureShardingAlgorithm
+    props:
+      sql-show: true
 #  profiles:
 #    active: local
 mybatis-plus:
@@ -41,6 +67,7 @@ mybatis-plus:
     #仅在开发环境打印日志
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
+    enable-sql-runner: true
     db-config:
       logic-delete-field: isDelete # 全局逻辑删除的实体字段名
       logic-delete-value: 1 # 逻辑已删除值（默认为 1）
