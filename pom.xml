@@ -3,10 +3,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.muzi</groupId>
-    <artifactId>easy-picture-backend</artifactId>
+    <artifactId>easy-picture-backend-ddd</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>easy-picture-backend</name>
-    <description>easy-picture-backend</description>
+    <name>easy-picture-backend-ddd</name>
+    <description>easy-picture-backend-ddd</description>
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -116,6 +116,19 @@
             <artifactId>shardingsphere-jdbc-core-spring-boot-starter</artifactId>
             <version>5.2.0</version>
         </dependency>
+        <!-- websocket -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+        <!-- 高性能无锁队列 -->
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>3.4.2</version>
+        </dependency>
+
+
 
     </dependencies>
     <dependencyManagement>
