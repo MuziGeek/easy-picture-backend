@@ -17,11 +17,16 @@ import com.muzi.easypicturebackend.model.vo.UserVO;
 import com.muzi.easypicturebackend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Slf4j
 @RestController
 @RequestMapping("/user")
@@ -29,6 +34,15 @@ public class UserController {
 
     @Resource
     private UserService userService;
+
+    /**
+     * 获取验证码
+     */
+    @GetMapping("/getcode")
+    public BaseResponse<Map<String, String>> getCode() {
+        Map<String, String> captchaData = userService.getCaptcha();
+        return ResultUtils.success(captchaData);
+    }
 
     /**
      * 用户注册
@@ -39,11 +53,20 @@ public class UserController {
         long result = userService.userRegister(userRegisterRequest);
         return ResultUtils.success(result);
     }
+
+    /**
+     * 获取当前登录用户
+     * @param request
+     * @return
+     */
     @GetMapping("/get/login")
     public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
         return ResultUtils.success(userService.getLoginUserVO(loginUser));
     }
+    /**
+     * 用户登录
+     */
     @PostMapping("/login")
     public BaseResponse<LoginUserVO> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(userLoginRequest == null, ErrorCode.PARAMS_ERROR);
@@ -52,10 +75,37 @@ public class UserController {
         LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword, request);
         return ResultUtils.success(loginUserVO);
     }
+
+    /**
+     * 用户退出
+     * @param request
+     * @return
+     */
     @PostMapping("/logout")
     public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
         boolean result = userService.userLogout(request);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 用户注销
+     * @param userDestroyRequest
+     * @return
+     */
+    @PostMapping("/destroy")
+    public BaseResponse<Boolean> userDestroy(@RequestBody DeleteRequest userDestroyRequest) {
+        ThrowUtils.throwIf(userDestroyRequest == null, ErrorCode.PARAMS_ERROR);
+        boolean result = userService.removeById(userDestroyRequest.getId());
+        return ResultUtils.success(result);
+    }
+    /**
+     * 更新用户头像
+     */
+    @PostMapping("/update/avatar")
+    public BaseResponse<String> updateUserAvatar(MultipartFile multipartFile, Long id, HttpServletRequest request) {
+        ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+        String result = userService.updateUserAvatar(multipartFile,id, request);
         return ResultUtils.success(result);
     }
     /**
@@ -111,6 +161,26 @@ public class UserController {
     }
 
     /**
+     * 批量删除用户
+     */
+    @PostMapping("/delete/batch")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> deleteBatchUser(@RequestBody List<DeleteRequest> deleteRequestList) {
+        if (CollectionUtils.isEmpty(deleteRequestList)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+
+        // 获取要删除的用户ID列表
+        List<Long> ids = deleteRequestList.stream()
+                .map(DeleteRequest::getId)
+                .collect(Collectors.toList());
+
+        // 批量删除MySQL数据
+        boolean result = userService.removeByIds(ids);
+        return ResultUtils.success(result);
+    }
+
+    /**
      * 更新用户
      */
     @PostMapping("/update")
@@ -146,6 +216,31 @@ public class UserController {
         userVOPage.setRecords(userVOList);
         return ResultUtils.success(userVOPage);
     }
-
-
+    /**
+     * 添加用户签到记录
+     *
+     * @param request
+     * @return 当前是否已签到成功
+     */
+    @PostMapping("/add/sign_in")
+    public BaseResponse<Boolean> addUserSignIn(HttpServletRequest request) {
+        // 必须要登录才能签到
+        User loginUser = userService.getLoginUser(request);
+        boolean result = userService.addUserSignIn(loginUser.getId());
+        return ResultUtils.success(result);
+    }
+    /**
+     * 获取用户签到记录
+     *
+     * @param year    年份（为空表示当前年份）
+     * @param request
+     * @return 签到记录映射
+     */
+    @GetMapping("/get/sign_in")
+    public BaseResponse<List<Integer>> getUserSignInRecord(Integer year, HttpServletRequest request) {
+        // 必须要登录才能获取
+        User loginUser = userService.getLoginUser(request);
+        List<Integer> userSignInRecord = userService.getUserSignInRecord(loginUser.getId(), year);
+        return ResultUtils.success(userSignInRecord);
+    }
 }

@@ -2,14 +2,17 @@ package com.muzi.easypicturebackend.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.muzi.easypicturebackend.model.dto.user.UserModifyPassWord;
 import com.muzi.easypicturebackend.model.dto.user.UserQueryRequest;
 import com.muzi.easypicturebackend.model.dto.user.UserRegisterRequest;
 import com.muzi.easypicturebackend.model.entity.User;
 import com.muzi.easypicturebackend.model.vo.LoginUserVO;
 import com.muzi.easypicturebackend.model.vo.UserVO;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 /**
 * @author 57242
@@ -17,7 +20,14 @@ import java.util.List;
 * @createDate 2024-12-10 22:43:05
 */
 public interface UserService extends IService<User> {
-
+    /**
+     * 验证用户输入的验证码是否正确
+     *
+     * @param userInputCaptcha 用户输入的验证码
+     * @param serververifycode 服务器端存储的加密后的验证码
+     * @return 如果验证成功返回true，否则返回false
+     */
+    boolean validateCaptcha(String userInputCaptcha, String serververifycode);
 
     /**
      * 用户注册
@@ -64,6 +74,11 @@ public interface UserService extends IService<User> {
 
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 
+    /**
+     * 获取加密后的密码
+     * @param userPassword
+     * @return
+     */
     String getEncryptPassword(String userPassword);
     /**
      * 是否为管理员
@@ -72,5 +87,34 @@ public interface UserService extends IService<User> {
      * @return
      */
     boolean isAdmin(User user);
+
+    /**
+     * 修改用户头像
+     * @param multipartFile
+     * @param id
+     * @param request
+     * @return
+     */
+    String updateUserAvatar(MultipartFile multipartFile, Long id, HttpServletRequest request);
+
+    Map<String, String> getCaptcha();
+
+    /**
+     * 添加用户签到记录
+     * @param userId 用户 id
+     * @return 当前用户是否已签到成功
+     */
+    boolean addUserSignIn(long userId);
+
+    /**
+     * 获取用户某个年份的签到记录
+     *
+     * @param userId 用户 id
+     * @param year   年份（为空表示当前年份）
+     * @return 签到记录映射
+     */
+    List<Integer> getUserSignInRecord(long userId, Integer year);
+
+    boolean changePassword(UserModifyPassWord userModifyPassWord, HttpServletRequest request);
 
 }
