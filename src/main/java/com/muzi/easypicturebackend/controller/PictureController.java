@@ -29,12 +29,9 @@ import com.muzi.easypicturebackend.model.entity.Space;
 import com.muzi.easypicturebackend.model.entity.User;
 import com.muzi.easypicturebackend.model.enums.PictureReviewStatusEnum;
 import com.muzi.easypicturebackend.model.vo.PictureVO;
-import com.muzi.easypicturebackend.service.PictureService;
-import com.muzi.easypicturebackend.service.SpaceService;
-import com.muzi.easypicturebackend.service.UserService;
+import com.muzi.easypicturebackend.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.DigestUtils;
@@ -43,9 +40,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
 @Slf4j
 @RestController
 @RequestMapping("/picture")
@@ -53,20 +50,36 @@ public class PictureController {
 
     @Resource
     private PictureService pictureService;
+
     @Resource
     private UserService userService;
+
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
     @Resource
     private SpaceService spaceService;
+
     @Resource
     private AliYunAiApi aliYunAiApi;
 
-    private final Cache<String, String> LOCAL_CACHE = Caffeine.newBuilder().initialCapacity(1024).maximumSize(10000L)
-            // 缓存 5 分钟移除
-            .expireAfterWrite(5L, TimeUnit.MINUTES).build();
-    @Autowired
+    @Resource
+    private TagService tagService;
+
+    @Resource
+    private CategoryService categoryService;
+
+    @Resource
     private SpaceUserAuthManager spaceUserAuthManager;
+    /**
+     * 本地缓存
+     */
+    private final Cache<String, String> LOCAL_CACHE = Caffeine.newBuilder()
+            .initialCapacity(1024)
+            .maximumSize(10000L)
+            // 缓存 5 分钟移除
+            .expireAfterWrite(5L, TimeUnit.MINUTES)
+            .build();
 
     /**
      * 上传图片（可重新上传）
@@ -165,9 +178,9 @@ public class PictureController {
             boolean hasPermission = StpKit.SPACE.hasPermission(SpaceUserPermissionConstant.PICTURE_VIEW);
             ThrowUtils.throwIf(!hasPermission, ErrorCode.NO_AUTH_ERROR);
             //已经改为注解鉴权
-           // pictureService.checkPictureAuth(userService.getLoginUser(request), picture);
+            // pictureService.checkPictureAuth(userService.getLoginUser(request), picture);
             space = spaceService.getById(spaceId);
-            ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR,"空间不存在");
+            ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
         }
         //获取权限列表
         User loginUser = userService.getLoginUser(request);
@@ -223,6 +236,7 @@ public class PictureController {
         // 获取封装类
         return ResultUtils.success(pictureService.getPictureVOPage(picturePage, request));
     }
+
     /**
      * 分页获取图片列表（封装类 + 缓存）
      */
@@ -289,13 +303,18 @@ public class PictureController {
     @GetMapping("/tag_category")
     public BaseResponse<PictureTagCategory> listPictureTagCategory() {
         PictureTagCategory pictureTagCategory = new PictureTagCategory();
-        List<String> tagList = Arrays.asList("热门", "搞笑", "生活", "高清", "艺术", "校园", "背景", "简历", "创意");
-        List<String> categoryList = Arrays.asList("模板", "电商", "表情包", "素材", "海报");
-        pictureTagCategory.setTagList(tagList);
-        pictureTagCategory.setCategoryList(categoryList);
+        pictureTagCategory.setTagList(tagService.listTag());
+        pictureTagCategory.setCategoryList(categoryService.listCategory());
         return ResultUtils.success(pictureTagCategory);
     }
 
+    /**
+     * 审核图片
+     *
+     * @param pictureReviewRequest
+     * @param request
+     * @return
+     */
     @PostMapping("/review")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> doPictureReview(@RequestBody PictureReviewRequest pictureReviewRequest, HttpServletRequest request) {
@@ -305,6 +324,13 @@ public class PictureController {
         return ResultUtils.success(true);
     }
 
+    /**
+     * 批量抓取并创建图片
+     *
+     * @param pictureUploadByBatchRequest
+     * @param request
+     * @return
+     */
     @PostMapping("/upload/batch")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Integer> uploadPictureByBatch(@RequestBody PictureUploadByBatchRequest pictureUploadByBatchRequest, HttpServletRequest request) {
@@ -331,6 +357,7 @@ public class PictureController {
 
     /**
      * 根据颜色搜图
+     *
      * @param searchPictureByColorRequest
      * @param request
      * @return
@@ -348,6 +375,7 @@ public class PictureController {
 
     /**
      * 批量编辑图片
+     *
      * @param pictureEditByBatchRequest
      * @param request
      * @return
@@ -360,6 +388,7 @@ public class PictureController {
         pictureService.editPictureByBatch(pictureEditByBatchRequest, loginUser);
         return ResultUtils.success(true);
     }
+
     /**
      * 创建 AI 扩图任务
      */

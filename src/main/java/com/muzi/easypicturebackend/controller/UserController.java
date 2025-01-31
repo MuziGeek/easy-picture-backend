@@ -5,6 +5,7 @@ import com.muzi.easypicturebackend.annotation.AuthCheck;
 import com.muzi.easypicturebackend.common.BaseResponse;
 import com.muzi.easypicturebackend.common.DeleteRequest;
 import com.muzi.easypicturebackend.common.ResultUtils;
+import com.muzi.easypicturebackend.constant.CommonValue;
 import com.muzi.easypicturebackend.constant.UserConstant;
 import com.muzi.easypicturebackend.exception.BusinessException;
 import com.muzi.easypicturebackend.exception.ErrorCode;
@@ -67,8 +68,7 @@ public class UserController {
         User user = new User();
         BeanUtils.copyProperties(userAddRequest, user);
         // 默认密码 12345678
-        final String DEFAULT_PASSWORD = "12345678";
-        String encryptPassword = userService.getEncryptPassword(DEFAULT_PASSWORD);
+        String encryptPassword = userService.getEncryptPassword(CommonValue.DEFAULT_PASSWORD);
         user.setUserPassword(encryptPassword);
         boolean result = userService.save(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);

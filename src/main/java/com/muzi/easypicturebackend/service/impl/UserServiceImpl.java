@@ -1,10 +1,12 @@
 package com.muzi.easypicturebackend.service.impl;
 
+import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.muzi.easypicturebackend.constant.CommonValue;
 import com.muzi.easypicturebackend.exception.BusinessException;
 import com.muzi.easypicturebackend.exception.ErrorCode;
 import com.muzi.easypicturebackend.manager.auth.StpKit;
@@ -106,6 +108,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // 4. 记录用户登录态到 Sa-token，便于空间鉴权时使用，注意保证该用户信息与 SpringSession 中的信息过期时间一致
         StpKit.SPACE.login(user.getId());
         StpKit.SPACE.getSession().set(USER_LOGIN_STATE, user);
+
         return this.getLoginUserVO(user);
     }
 
@@ -133,6 +136,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         LoginUserVO loginUserVO = new LoginUserVO();
         BeanUtils.copyProperties(user, loginUserVO);
+        //回用户信息及token,解决后端重启后调用团队空间接口报 cn.dev33.satoken.exception.SaTokenException: 未能获取对应StpLogic，type=space
+        SaTokenInfo tokenInfo = StpKit.SPACE.getTokenInfo();
+        loginUserVO.setTokenName(tokenInfo.getTokenName());
+        loginUserVO.setTokenValue(tokenInfo.getTokenValue());
         return loginUserVO;
     }
 
@@ -190,7 +197,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public String getEncryptPassword(String userPassword) {
-        final String SALT = "muzi";
+        final String SALT = CommonValue.DEFAULT_SALT;
         return DigestUtils.md5DigestAsHex((userPassword + SALT).getBytes());
     }
     @Override
