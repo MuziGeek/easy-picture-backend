@@ -8,7 +8,7 @@ server:
         max-age: 2592000
 spring:
   application:
-    name: easy-picture-backend
+    name: easy-picture-backend-ddd
   # 数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
