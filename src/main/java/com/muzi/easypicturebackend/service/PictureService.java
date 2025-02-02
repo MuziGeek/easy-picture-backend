@@ -8,6 +8,7 @@ import com.muzi.easypicturebackend.model.dto.picture.*;
 import com.muzi.easypicturebackend.model.entity.Picture;
 import com.muzi.easypicturebackend.model.entity.User;
 import com.muzi.easypicturebackend.model.vo.PictureVO;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -98,4 +99,13 @@ public interface PictureService extends IService<Picture> {
      * @return
      */
     CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, User loginUser);
+
+    void crawlerDetect(HttpServletRequest request);
+
+    List<PictureVO> getTop100Picture(Long id);
+
+    Page<PictureVO> getFollowPicture(HttpServletRequest request, PictureQueryRequest pictureQueryRequest);
+
+    @Transactional(rollbackFor = Exception.class)
+    boolean batchOperationPicture(PictureOperation pictureOperation);
 }

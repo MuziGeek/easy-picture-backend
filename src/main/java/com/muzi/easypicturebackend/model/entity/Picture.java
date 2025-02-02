@@ -85,7 +85,19 @@ public class Picture implements Serializable {
      * 创建用户 id
      */
     private Long userId;
+    /**
+     * 评论数
+     */
+    private Long commentCount;
 
+    /**
+     * 点赞数
+     */
+    private Long likeCount;
+    /**
+     * 分享数
+     */
+    private Long shareCount;
     /**
      * 创建时间
      */

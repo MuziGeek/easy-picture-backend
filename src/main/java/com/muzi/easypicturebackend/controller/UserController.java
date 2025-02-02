@@ -216,6 +216,16 @@ public class UserController {
         userVOPage.setRecords(userVOList);
         return ResultUtils.success(userVOPage);
     }
+
+    /**
+     * 修改密码
+     */
+    @PostMapping("/changePassword")
+    public BaseResponse<Boolean> changePassword(@RequestBody UserModifyPassWord userModifyPassWord, HttpServletRequest request) {
+        ThrowUtils.throwIf(userModifyPassWord == null, ErrorCode.PARAMS_ERROR);
+        boolean result = userService.changePassword(userModifyPassWord, request);
+        return ResultUtils.success(result);
+    }
     /**
      * 添加用户签到记录
      *
@@ -242,5 +252,26 @@ public class UserController {
         User loginUser = userService.getLoginUser(request);
         List<Integer> userSignInRecord = userService.getUserSignInRecord(loginUser.getId(), year);
         return ResultUtils.success(userSignInRecord);
+    }
+
+    /**
+     * 批量删除
+     */
+    @PostMapping("/batchDelete")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> batchDeleteUser(@RequestBody List<Long> deleteRequestList,
+                                                 HttpServletRequest request) {
+        // 参数校验，如果传入的删除请求列表为空，则抛出参数异常
+        ThrowUtils.throwIf(deleteRequestList == null || deleteRequestList.isEmpty(), ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        // 根据ID列表查询对应的图片列表
+        List<User> pictureList = userService.listByIds(deleteRequestList);
+        // 校验图片是否存在，如果查询到的图片列表为空，则抛出未找到资源异常
+        ThrowUtils.throwIf(pictureList == null || pictureList.isEmpty(), ErrorCode.NOT_FOUND_ERROR);
+        // 批量删除操作
+        boolean result = userService.removeByIds(deleteRequestList);
+        // 如果删除失败，抛出操作异常
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
     }
 }

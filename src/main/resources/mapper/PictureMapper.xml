@@ -42,5 +42,33 @@
     createTime,editTime,updateTime,
     isDelete
     </sql>
+    <select id="getTop100PictureByYear" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM picture
+        WHERE isDelete = 0 AND spaceId IS NULL AND reviewStatus = 1
+        AND createTime >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+        ORDER BY (likeCount * 0.4) + (commentCount * 0.4) + (shareCount * 0.2) DESC, createTime DESC
+        LIMIT 100
+    </select>
 
+    <select id="getTop100PictureByMonth" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM picture
+        WHERE isDelete = 0 AND spaceId IS NULL AND reviewStatus = 1
+        AND createTime >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
+        ORDER BY (likeCount * 0.4) + (commentCount * 0.4) + (shareCount * 0.2) DESC, createTime DESC
+        LIMIT 100
+    </select>
+
+    <select id="getTop100PictureByWeek" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM picture
+        WHERE isDelete = 0 AND spaceId IS NULL AND reviewStatus = 1
+        AND createTime >= DATE_SUB(CURDATE(), INTERVAL 1 WEEK)
+        ORDER BY (likeCount * 0.4) + (commentCount * 0.4) + (shareCount * 0.2) DESC, createTime DESC
+        LIMIT 100
+    </select>
 </mapper>

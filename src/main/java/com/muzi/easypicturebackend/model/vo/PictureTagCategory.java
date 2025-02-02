@@ -1,4 +1,4 @@
-package com.muzi.easypicturebackend.model.entity;
+package com.muzi.easypicturebackend.model.vo;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;

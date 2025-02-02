@@ -12,6 +12,7 @@ import java.util.List;
 @Data
 public class PictureVO implements Serializable {
 
+
     /**
      * id
      */
@@ -21,6 +22,7 @@ public class PictureVO implements Serializable {
      * 图片 url
      */
     private String url;
+
     /**
      * 缩略图 url
      */
@@ -40,6 +42,11 @@ public class PictureVO implements Serializable {
      * 标签
      */
     private List<String> tags;
+
+    /**
+     * 空间 id
+     */
+    private Long spaceId;
 
     /**
      * 分类
@@ -72,13 +79,39 @@ public class PictureVO implements Serializable {
     private String picFormat;
 
     /**
+     * 图片主色调
+     */
+    private String picColor;
+
+    /**
+     * 审核状态：0-待审核; 1-通过; 2-拒绝
+     */
+    private Integer reviewStatus;
+
+    /**
+     * 审核信息
+     */
+    private String reviewMessage;
+
+    /**
+     * 评论数
+     */
+    private Long commentCount;
+
+    /**
+     * 点赞数
+     */
+    private Long likeCount;
+
+    /**
+     * 分享数
+     */
+    private Long shareCount;
+
+    /**
      * 用户 id
      */
     private Long userId;
-    /**
-     * 空间 ID
-     */
-    private Long spaceId;
 
     /**
      * 创建时间
@@ -96,17 +129,20 @@ public class PictureVO implements Serializable {
     private Date updateTime;
 
     /**
+     * 当前用户是否点赞
+     */
+    private Integer isLiked;
+
+    /**
      * 创建用户信息
      */
     private UserVO user;
-    /**
-     * 图片主色调
-     */
-    private String picColor;
+
     /**
      * 权限列表
      */
     private List<String> permissionList = new ArrayList<>();
+
 
 
     private static final long serialVersionUID = 1L;

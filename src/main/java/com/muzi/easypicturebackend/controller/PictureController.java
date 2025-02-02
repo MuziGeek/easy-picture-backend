@@ -1,5 +1,6 @@
 package com.muzi.easypicturebackend.controller;
 
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -14,6 +15,7 @@ import com.muzi.easypicturebackend.api.imagesearch.model.ImageSearchResult;
 import com.muzi.easypicturebackend.common.BaseResponse;
 import com.muzi.easypicturebackend.common.DeleteRequest;
 import com.muzi.easypicturebackend.common.ResultUtils;
+import com.muzi.easypicturebackend.constant.RedisConstant;
 import com.muzi.easypicturebackend.constant.SpaceUserPermissionConstant;
 import com.muzi.easypicturebackend.constant.UserConstant;
 import com.muzi.easypicturebackend.exception.BusinessException;
@@ -24,7 +26,7 @@ import com.muzi.easypicturebackend.manager.auth.StpKit;
 import com.muzi.easypicturebackend.manager.auth.annotation.SaSpaceCheckPermission;
 import com.muzi.easypicturebackend.model.dto.picture.*;
 import com.muzi.easypicturebackend.model.entity.Picture;
-import com.muzi.easypicturebackend.model.entity.PictureTagCategory;
+import com.muzi.easypicturebackend.model.vo.PictureTagCategory;
 import com.muzi.easypicturebackend.model.entity.Space;
 import com.muzi.easypicturebackend.model.entity.User;
 import com.muzi.easypicturebackend.model.enums.PictureReviewStatusEnum;
@@ -147,7 +149,23 @@ public class PictureController {
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
     }
-
+    /**
+     * 批量
+     */
+    @PostMapping("/batchOption")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> batchOperationPicture(@RequestBody PictureOperation pictureOperation,
+                                                       HttpServletRequest request) {
+        // 参数校验
+        ThrowUtils.throwIf(pictureOperation == null || pictureOperation.getIds() == null || pictureOperation.getIds().isEmpty(), ErrorCode.PARAMS_ERROR);
+        //判断是否登录
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(!userService.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR);
+        //调用service方法
+        boolean result = pictureService.batchOperationPicture(pictureOperation);
+        //返回结果
+        return ResultUtils.success(true);
+    }
     /**
      * 根据 id 获取图片（仅管理员可用）
      */
@@ -415,4 +433,37 @@ public class PictureController {
         return ResultUtils.success(task);
     }
 
+    /**
+     * top100 的数据
+     */
+    @GetMapping("/top100/{id}")
+    public BaseResponse<List<PictureVO>> getTop100Picture(@PathVariable Long id) {
+        // 构建 Redis 缓存的 key，根据 id 区分不同时间范围的 top100 数据
+        String cacheKey = RedisConstant.TOP_100_PIC_REDIS_KEY_PREFIX + id;
+
+        // 先从 Redis 缓存中获取数据
+        String cachedValue = stringRedisTemplate.opsForValue().get(cacheKey);
+        if (cachedValue!= null) {
+            // 缓存命中，将 JSON 字符串转换为 List<PictureVO>
+            List<PictureVO> pictureVOList = JSONUtil.toList(cachedValue, PictureVO.class);
+            return ResultUtils.success(pictureVOList);
+        }
+
+        // 缓存未命中，调用服务层方法获取数据
+        List<PictureVO> pictureVOList = pictureService.getTop100Picture(id);
+        int cacheExpireTime = (int) (RedisConstant.TOP_100_PIC_REDIS_KEY_EXPIRE_TIME + RandomUtil.randomInt(0, 6000));
+        // 将数据存储到 Redis 缓存中，设置过期时间为一天
+        stringRedisTemplate.opsForValue().set(cacheKey, JSONUtil.toJsonStr(pictureVOList),cacheExpireTime , TimeUnit.SECONDS);
+
+        return ResultUtils.success(pictureVOList);
+    }
+
+    /**
+     * 关注列表照片
+     */
+    @PostMapping("/follow")
+    public BaseResponse<Page<PictureVO>> getFollowPicture(@RequestBody PictureQueryRequest pictureQueryRequest,
+                                                          HttpServletRequest request) {
+        return ResultUtils.success(pictureService.getFollowPicture(request, pictureQueryRequest));
+    }
 }

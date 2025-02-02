@@ -8,13 +8,7 @@ server:
         max-age: 2592000
 spring:
   application:
-    name: easy-picture-backend-ddd
-  # 数据库配置
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://47.102.86.248:3306/easy_picture
-    username: root
-    password: woshiliduo123
+    name: easy-picture-backend
   # 开放更大的文件上传体积
   servlet:
     multipart:
@@ -24,13 +18,9 @@ spring:
     store-type: redis
     # session 30 天过期
     timeout: 2592000
-  #Rdis配置
-  redis:
-    database: 0
-    host: 47.102.86.248
-    port: 6379
-    password: woshiliduo123
-    timeout: 5000ms
+#  #Elasticsearch配置
+#  elasticsearch:
+#    uris: http://localhost:9201
   # 空间图片分表
   shardingsphere:
     datasource:
