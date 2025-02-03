@@ -230,27 +230,30 @@ public class PictureController {
         long current = pictureQueryRequest.getCurrent();
         long size = pictureQueryRequest.getPageSize();
         // 限制爬虫
-        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
-
-        //空间权限校验
+        ThrowUtils.throwIf(size > 50, ErrorCode.PARAMS_ERROR);
+        // 空间权限校验
         Long spaceId = pictureQueryRequest.getSpaceId();
-        if (spaceId == null) {
-            // 普通用户默认只能查看已过审的数据
+        Long userId = pictureQueryRequest.getUserId();
+        if (spaceId == null && userId==null){
+            // 公开图库
+            // 普通用户默认只能看到审核通过的数据
             pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
             pictureQueryRequest.setNullSpaceID(true);
-        } else {
-            //私有空间
+        }
+        if (spaceId == null && userId !=null) {
+            // 用户发布的图片
+            User loginUser = userService.getLoginUser(request);
+            ThrowUtils.throwIf(!loginUser.getId().equals(userId), ErrorCode.NO_AUTH_ERROR, "没有权限");
+            pictureQueryRequest.setUserId(userId);
+            pictureQueryRequest.setNullSpaceID(true);
+        }
+        if (spaceId != null && userId == null){
             boolean hasPermission = StpKit.SPACE.hasPermission(SpaceUserPermissionConstant.PICTURE_VIEW);
             ThrowUtils.throwIf(!hasPermission, ErrorCode.NO_AUTH_ERROR);
-//            User loginUser = userService.getLoginUser(request);
-//            Space space = spaceService.getById(spaceId);
-//            ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
-//            if (!space.getUserId().equals(loginUser.getId())) {
-//                throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "非公开空间，无权限访问");
-//            }
         }
         // 查询数据库
-        Page<Picture> picturePage = pictureService.page(new Page<>(current, size), pictureService.getQueryWrapper(pictureQueryRequest));
+        Page<Picture> picturePage = pictureService.page(new Page<>(current, size),
+                pictureService.getQueryWrapper(pictureQueryRequest));
         // 获取封装类
         return ResultUtils.success(pictureService.getPictureVOPage(picturePage, request));
     }
