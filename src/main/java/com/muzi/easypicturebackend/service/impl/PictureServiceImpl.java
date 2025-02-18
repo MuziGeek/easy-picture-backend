@@ -524,8 +524,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             PictureUploadRequest pictureUploadRequest = new PictureUploadRequest();
             pictureUploadRequest.setFileUrl(fileUrl);
             pictureUploadRequest.setPicName(namePrefix + (uploadCount + 1));
-            pictureUploadRequest.setCategoryName(pictureUploadByBatchRequest.getCategoryName());
-            pictureUploadRequest.setTagName(JSONUtil.toJsonStr(pictureUploadByBatchRequest.getTagName()));
+            pictureUploadRequest.setCategoryName(pictureUploadByBatchRequest.getCategory());
+            pictureUploadRequest.setTagName(JSONUtil.toJsonStr(pictureUploadByBatchRequest.getTags()));
             try {
                 PictureVO pictureVO = this.uploadPicture(fileUrl, pictureUploadRequest, loginUser);
                 log.info("图片上传成功，id = {}", pictureVO.getId());
