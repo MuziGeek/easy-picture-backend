@@ -22,18 +22,9 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     implements CategoryService{
 
-
     @Override
-    public List<String> listCategory() {
-        //从数据库查询分类
-        QueryWrapper<Category> queryWrapper2 = new QueryWrapper<>();
-        // 指定只查询 name 字段
-        queryWrapper2.select("categoryName");
-        // 执行查询并将结果转换为 List<String>
-        return this.getBaseMapper().selectObjs(queryWrapper2)
-                .stream()
-                .map(obj -> obj != null ? obj.toString() : null)
-                .collect(Collectors.toList());
+    public List<String> listCategoryByType(Integer type) {
+        return this.baseMapper.listCategoryByType(type);
     }
 
     @Override
@@ -55,12 +46,22 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     }
 
     @Override
-    public List<CategoryVO> findCategory(String categoryName) {
-        //查询条件改造
+    public List<CategoryVO> findCategory(String categoryName, Integer type) {
         QueryWrapper<Category> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("categoryName", categoryName);
+        if (type != null) {
+            queryWrapper.eq("type", type);
+        }
         List<Category> categoryList = this.baseMapper.selectList(queryWrapper);
         return listCategoryVO(categoryList);
+    }
+
+    @Override
+    public boolean addCategory(String categoryName, Integer type) {
+        Category category = new Category();
+        category.setCategoryName(categoryName);
+        category.setType(type);
+        return this.save(category);
     }
 }
 

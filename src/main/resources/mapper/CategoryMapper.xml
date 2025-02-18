@@ -5,16 +5,18 @@
 <mapper namespace="com.muzi.easypicturebackend.mapper.CategoryMapper">
 
     <resultMap id="BaseResultMap" type="com.muzi.easypicturebackend.model.entity.Category">
-            <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="categoryName" column="categoryName" jdbcType="VARCHAR"/>
-            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
-            <result property="editTime" column="editTime" jdbcType="TIMESTAMP"/>
-            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
-            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="categoryName" column="categoryName" jdbcType="VARCHAR"/>
+        <result property="type" column="type" jdbcType="TINYINT"/>
+        <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+        <result property="editTime" column="editTime" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,categoryName,createTime,
+        id
+        ,categoryName,createTime,type,
         editTime,updateTime,isDelete
     </sql>
 </mapper>

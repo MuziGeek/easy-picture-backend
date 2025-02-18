@@ -75,7 +75,7 @@ public class UserFollowsController {
 
       ThrowUtils.throwIf(pictureQueryRequest.getUserId() == null, ErrorCode.PARAMS_ERROR, "用户id不能为空");
       pictureQueryRequest.setUserId(pictureQueryRequest.getUserId());
-      pictureQueryRequest.setNullSpaceID(true);
+      pictureQueryRequest.setNullSpaceId(true);
       pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
 
       // 查询数据库

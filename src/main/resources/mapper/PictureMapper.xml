@@ -29,18 +29,23 @@
         <result property="reviewTime" column="reviewTime" jdbcType="TIMESTAMP"/>
         <result property="thumbnailUrl" column="thumbnailUrl" jdbcType="VARCHAR"/>
         <result property="picColor" column="picColor" jdbcType="VARCHAR"/>
-
+        <result property="commentCount" column="commentCount" jdbcType="BIGINT"/>
+        <result property="likeCount" column="likeCount" jdbcType="BIGINT"/>
+        <result property="shareCount" column="shareCount" jdbcType="BIGINT"/>
+        <result property="viewCount" column="viewCount" jdbcType="BIGINT"/>
     </resultMap>
 
     <!-- ... -->
     <sql id="Base_Column_List">
-        id
-        ,url,thumbnailUrl,picColor,name,
-    introduction,category,tags,
-    picSize,picWidth,picHeight,
-    picScale,picFormat,userId,spaceId
-    createTime,editTime,updateTime,
-    isDelete
+        id,url,thumbnailUrl,name,
+        introduction,category,tags,
+        picSize,picWidth,picHeight,
+        picScale,picFormat,userId,
+        createTime,editTime,updateTime,
+        isDelete,reviewStatus,reviewMessage,
+        reviewerId,reviewTime,
+        commentCount,likeCount,shareCount,
+        viewCount,picColor
     </sql>
     <select id="getTop100PictureByYear" resultMap="BaseResultMap">
         SELECT
@@ -48,7 +53,7 @@
         FROM picture
         WHERE isDelete = 0 AND spaceId IS NULL AND reviewStatus = 1
         AND createTime >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
-        ORDER BY (likeCount * 0.4) + (commentCount * 0.4) + (shareCount * 0.2) DESC, createTime DESC
+        ORDER BY (likeCount * 0.4 + commentCount * 0.3 + viewCount * 0.2 + shareCount * 0.1) DESC, createTime DESC
         LIMIT 100
     </select>
 
@@ -58,7 +63,7 @@
         FROM picture
         WHERE isDelete = 0 AND spaceId IS NULL AND reviewStatus = 1
         AND createTime >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
-        ORDER BY (likeCount * 0.4) + (commentCount * 0.4) + (shareCount * 0.2) DESC, createTime DESC
+        ORDER BY (likeCount * 0.4 + commentCount * 0.3 + viewCount * 0.2 + shareCount * 0.1) DESC, createTime DESC
         LIMIT 100
     </select>
 
@@ -68,7 +73,7 @@
         FROM picture
         WHERE isDelete = 0 AND spaceId IS NULL AND reviewStatus = 1
         AND createTime >= DATE_SUB(CURDATE(), INTERVAL 1 WEEK)
-        ORDER BY (likeCount * 0.4) + (commentCount * 0.4) + (shareCount * 0.2) DESC, createTime DESC
+        ORDER BY (likeCount * 0.4 + commentCount * 0.3 + viewCount * 0.2 + shareCount * 0.1) DESC, createTime DESC
         LIMIT 100
     </select>
 </mapper>

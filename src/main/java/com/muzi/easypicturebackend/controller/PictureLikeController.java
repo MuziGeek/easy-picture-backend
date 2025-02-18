@@ -7,7 +7,6 @@ import com.muzi.easypicturebackend.exception.ErrorCode;
 import com.muzi.easypicturebackend.exception.ThrowUtils;
 import com.muzi.easypicturebackend.model.dto.picturelike.PictureLikeRequest;
 import com.muzi.easypicturebackend.model.entity.User;
-import com.muzi.easypicturebackend.service.PicturelikeService;
 import com.muzi.easypicturebackend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;

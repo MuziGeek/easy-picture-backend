@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 空间新增成员
+ * 创建空间成员请求
  */
 @Data
 public class SpaceUserAddRequest implements Serializable {

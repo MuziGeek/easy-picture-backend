@@ -9,9 +9,7 @@ import com.muzi.easypicturebackend.exception.BusinessException;
 import com.muzi.easypicturebackend.exception.ErrorCode;
 import com.muzi.easypicturebackend.exception.ThrowUtils;
 import com.muzi.easypicturebackend.manager.auth.annotation.SaSpaceCheckPermission;
-import com.muzi.easypicturebackend.model.dto.spaceUser.SpaceUserAddRequest;
-import com.muzi.easypicturebackend.model.dto.spaceUser.SpaceUserEditRequest;
-import com.muzi.easypicturebackend.model.dto.spaceUser.SpaceUserQueryRequest;
+import com.muzi.easypicturebackend.model.dto.spaceUser.*;
 import com.muzi.easypicturebackend.model.entity.SpaceUser;
 import com.muzi.easypicturebackend.model.entity.User;
 import com.muzi.easypicturebackend.model.vo.SpaceUserVO;
@@ -38,7 +36,6 @@ public class SpaceUserController {
 
     @Resource
     private UserService userService;
-
     /**
      * 添加成员到空间
      */
@@ -138,5 +135,44 @@ public class SpaceUserController {
                 spaceUserService.getQueryWrapper(spaceUserQueryRequest)
         );
         return ResultUtils.success(spaceUserService.getSpaceUserVOList(spaceUserList));
+    }
+
+    /**
+     * 审核空间成员申请
+     */
+    @PostMapping("/audit")
+    @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.SPACE_USER_MANAGE)
+    public BaseResponse<Boolean> auditSpaceUser(@RequestBody SpaceUserAuditRequest spaceUserAuditRequest,
+                                                HttpServletRequest request) {
+        if (spaceUserAuditRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
+
+        boolean result = spaceUserService.auditSpaceUser(spaceUserAuditRequest, loginUser);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
+
+    /**
+     * 申请加入空间
+     */
+    @PostMapping("/join")
+    public BaseResponse<Boolean> joinSpace(@RequestBody SpaceUserJoinRequest spaceUserJoinRequest,
+                                           HttpServletRequest request) {
+        if (spaceUserJoinRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
+
+        boolean result = spaceUserService.joinSpace(spaceUserJoinRequest, loginUser);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
     }
 }

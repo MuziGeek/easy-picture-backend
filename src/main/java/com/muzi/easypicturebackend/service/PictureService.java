@@ -8,7 +8,6 @@ import com.muzi.easypicturebackend.model.dto.picture.*;
 import com.muzi.easypicturebackend.model.entity.Picture;
 import com.muzi.easypicturebackend.model.entity.User;
 import com.muzi.easypicturebackend.model.vo.PictureVO;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -19,10 +18,18 @@ import java.util.List;
  * @createDate 2024-12-13 23:14:50
  */
 public interface PictureService extends IService<Picture> {
+
+    /**
+     * 校验图片
+     *
+     * @param picture
+     */
+    void validPicture(Picture picture);
+
     /**
      * 上传图片
      *
-     * @param inputSource
+     * @param inputSource 文件输入源
      * @param pictureUploadRequest
      * @param loginUser
      * @return
@@ -31,14 +38,32 @@ public interface PictureService extends IService<Picture> {
                             PictureUploadRequest pictureUploadRequest,
                             User loginUser);
 
-
-    QueryWrapper<Picture> getQueryWrapper(PictureQueryRequest pictureQueryRequest);
-
+    /**
+     * 获取图片包装类（单条）
+     *
+     * @param picture
+     * @param request
+     * @return
+     */
     PictureVO getPictureVO(Picture picture, HttpServletRequest request);
 
+    /**
+     * 获取图片包装类（分页）
+     *
+     * @param picturePage
+     * @param request
+     * @return
+     */
     Page<PictureVO> getPictureVOPage(Page<Picture> picturePage, HttpServletRequest request);
 
-    void validPicture(Picture picture);
+    /**
+     * 获取查询对象
+     *
+     * @param pictureQueryRequest
+     * @return
+     */
+    QueryWrapper<Picture> getQueryWrapper(PictureQueryRequest pictureQueryRequest);
+
 
     /**
      * 图片审核
@@ -48,6 +73,12 @@ public interface PictureService extends IService<Picture> {
      */
     void doPictureReview(PictureReviewRequest pictureReviewRequest, User loginUser);
 
+    /**
+     * 填充审核参数
+     *
+     * @param picture
+     * @param loginUser
+     */
     void fillReviewParams(Picture picture, User loginUser);
 
     /**
@@ -57,24 +88,36 @@ public interface PictureService extends IService<Picture> {
      * @param loginUser
      * @return 成功创建的图片数
      */
-    Integer uploadPictureByBatch(
-            PictureUploadByBatchRequest pictureUploadByBatchRequest,
-            User loginUser
-    );
+    Integer uploadPictureByBatch(PictureUploadByBatchRequest pictureUploadByBatchRequest,
+                                 User loginUser);
 
+    boolean batchOperationPicture(PictureOperation pictureOperation);
+
+    /**
+     * 清理图片文件
+     *
+     * @param oldPicture
+     */
     void clearPictureFile(Picture oldPicture);
-
-    void deletePicture(long pictureId, User loginUser);
-
-    void editPicture(PictureEditRequest pictureEditRequest, User loginUser);
 
     /**
      * 校验空间图片的权限
      *
-     * @param loginuser
+     * @param loginUser
      * @param picture
      */
-    void checkPictureAuth(User loginuser, Picture picture);
+    void checkPictureAuth(User loginUser, Picture picture);
+
+    /**
+     * 删除图片
+     *
+     * @param pictureId
+     * @param loginUser
+     */
+    void deletePicture(long pictureId, User loginUser);
+
+    void editPicture(PictureEditRequest pictureEditRequest, User loginUser);
+
     /**
      * 根据颜色搜索图片
      *
@@ -87,6 +130,7 @@ public interface PictureService extends IService<Picture> {
 
     /**
      * 批量编辑图片
+     *
      * @param pictureEditByBatchRequest
      * @param loginUser
      */
@@ -94,9 +138,9 @@ public interface PictureService extends IService<Picture> {
 
     /**
      * 创建扩图任务
+     *
      * @param createPictureOutPaintingTaskRequest
      * @param loginUser
-     * @return
      */
     CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, User loginUser);
 
@@ -106,6 +150,48 @@ public interface PictureService extends IService<Picture> {
 
     Page<PictureVO> getFollowPicture(HttpServletRequest request, PictureQueryRequest pictureQueryRequest);
 
-    @Transactional(rollbackFor = Exception.class)
-    boolean batchOperationPicture(PictureOperation pictureOperation);
+    PictureVO uploadPostPicture(Object inputSource,
+                                PictureUploadRequest pictureUploadRequest,
+                                User loginUser);
+
+    long getViewCount(Long pictureId);
+
+
+    /**
+     * 更新图片信息
+     * @param picture 图片信息
+     * @return 更新结果
+     */
+    boolean updatePicture(Picture picture);
+
+    /**
+     * 获取图片详情(带权限校验)
+     * @param id 图片ID
+     * @param request HTTP请求
+     * @return 图片详情VO
+     */
+    PictureVO getPictureVOById(long id, HttpServletRequest request);
+
+    /**
+     * 分页获取图片列表(带缓存)
+     * @param pictureQueryRequest 查询请求
+     * @param request HTTP请求
+     * @return 分页图片列表
+     */
+    Page<PictureVO> listPictureVOByPageWithCache(PictureQueryRequest pictureQueryRequest, HttpServletRequest request);
+
+    /**
+     * 获取Top100图片列表(带缓存)
+     * @param id 榜单类型ID
+     * @return Top100图片列表
+     */
+    List<PictureVO> getTop100PictureWithCache(Long id);
+
+    /**
+     * 分页获取图片列表（封装类）
+     * @param pictureQueryRequest 查询请求
+     * @param request HTTP请求
+     * @return 分页图片列表
+     */
+    Page<PictureVO> listPictureVOByPage(PictureQueryRequest pictureQueryRequest, HttpServletRequest request);
 }

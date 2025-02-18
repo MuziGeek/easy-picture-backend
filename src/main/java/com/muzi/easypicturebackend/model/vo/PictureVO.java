@@ -1,5 +1,6 @@
 package com.muzi.easypicturebackend.model.vo;
 
+import cn.hutool.json.JSONUtil;
 import com.muzi.easypicturebackend.model.entity.Picture;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -11,7 +12,6 @@ import java.util.List;
 
 @Data
 public class PictureVO implements Serializable {
-
 
     /**
      * id
@@ -134,6 +134,11 @@ public class PictureVO implements Serializable {
     private Integer isLiked;
 
     /**
+     * 当前用户是否分享
+     */
+    private Integer isShared;
+
+    /**
      * 创建用户信息
      */
     private UserVO user;
@@ -143,7 +148,10 @@ public class PictureVO implements Serializable {
      */
     private List<String> permissionList = new ArrayList<>();
 
-
+    /**
+     * 浏览量
+     */
+    private Long viewCount;
 
     private static final long serialVersionUID = 1L;
 
@@ -157,7 +165,7 @@ public class PictureVO implements Serializable {
         Picture picture = new Picture();
         BeanUtils.copyProperties(pictureVO, picture);
         // 类型不同，需要转换
-//        picture.setTags(Collections.singletonList(JSONUtil.toJsonStr(pictureVO.getTags())));
+        picture.setTags(JSONUtil.toJsonStr(pictureVO.getTags()));
         return picture;
     }
 
@@ -171,8 +179,7 @@ public class PictureVO implements Serializable {
         PictureVO pictureVO = new PictureVO();
         BeanUtils.copyProperties(picture, pictureVO);
         // 类型不同，需要转换
-//        pictureVO.setTags(JSONUtil.toJsonStr(picture.getTags(), List.class));
+        pictureVO.setTags(JSONUtil.toList(picture.getTags(), String.class));
         return pictureVO;
     }
 }
-

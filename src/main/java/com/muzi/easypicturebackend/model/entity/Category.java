@@ -23,7 +23,10 @@ public class Category implements Serializable {
      * 分类名称
      */
     private String categoryName;
-
+    /**
+     * 分类类型：0-图片分类 1-帖子分类
+     */
+    private Integer type;
     /**
      * 创建时间
      */

@@ -6,6 +6,7 @@ import com.muzi.easypicturebackend.common.BaseResponse;
 import com.muzi.easypicturebackend.common.DeleteRequest;
 import com.muzi.easypicturebackend.common.ResultUtils;
 import com.muzi.easypicturebackend.constant.UserConstant;
+import com.muzi.easypicturebackend.esdao.EsSpaceDao;
 import com.muzi.easypicturebackend.exception.BusinessException;
 import com.muzi.easypicturebackend.exception.ErrorCode;
 import com.muzi.easypicturebackend.exception.ThrowUtils;
@@ -19,7 +20,7 @@ import com.muzi.easypicturebackend.service.SpaceService;
 import com.muzi.easypicturebackend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -37,8 +38,11 @@ public class SpaceController {
     private SpaceService spaceService;
     @Resource
     private UserService userService;
-    @Autowired
+    @Resource
     private SpaceUserAuthManager spaceUserAuthManager;
+
+    @Resource
+    private EsSpaceDao esSpaceDao;
 
     @PostMapping("/add")
     public BaseResponse<Long> addSpace(@RequestBody SpaceAddRequest spaceAddRequest, HttpServletRequest request) {
@@ -68,6 +72,30 @@ public class SpaceController {
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         //清理图片资源
         return ResultUtils.success(true);
+    }
+    /**
+     * 批量删除空间
+     */
+    @PostMapping("/delete/batch")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> deleteBatchSpace(@RequestBody List<DeleteRequest> deleteRequestList) {
+        if (CollectionUtils.isEmpty(deleteRequestList)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+
+        // 获取要删除的空间ID列表
+        List<Long> ids = deleteRequestList.stream()
+                .map(DeleteRequest::getId)
+                .collect(Collectors.toList());
+
+        // 批量删除MySQL数据
+        boolean result = spaceService.removeByIds(ids);
+        if (result) {
+            // 批量删除ES数据
+            ids.forEach(id -> esSpaceDao.deleteById(id));
+        }
+
+        return ResultUtils.success(result);
     }
 
     /**

@@ -1,7 +1,9 @@
 package com.muzi.easypicturebackend.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.springframework.data.domain.Page;
 import com.muzi.easypicturebackend.model.dto.search.SearchRequest;
+
+import java.util.List;
 
 public interface SearchService {
     /**
@@ -10,4 +12,7 @@ public interface SearchService {
      * @return
      */
     Page<?> doSearch(SearchRequest searchRequest);
+
+    List<String> getHotSearchKeywords(String type, Integer size);
+
 } 

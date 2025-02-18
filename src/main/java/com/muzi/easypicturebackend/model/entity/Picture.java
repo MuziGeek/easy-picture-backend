@@ -1,34 +1,28 @@
 package com.muzi.easypicturebackend.model.entity;
-
 import com.baomidou.mybatisplus.annotation.*;
-import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 图片
  * @TableName picture
  */
-@TableName(value ="picture",autoResultMap=true)
+@TableName(value ="picture")
 @Data
 public class Picture implements Serializable {
     /**
      * id
      */
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     /**
      * 图片 url
      */
     private String url;
-    /**
-     * 原始url
-     */
-    private String originUrl;
+
     /**
      * 缩略图 url
      */
@@ -52,8 +46,7 @@ public class Picture implements Serializable {
     /**
      * 标签（JSON 数组）
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private List<String> tags;
+    private String tags;
 
     /**
      * 图片体积
@@ -80,11 +73,16 @@ public class Picture implements Serializable {
      */
     private String picFormat;
 
+    /**
+     * 图片主色调
+     */
+    private String picColor;
 
     /**
      * 创建用户 id
      */
     private Long userId;
+
     /**
      * 评论数
      */
@@ -94,10 +92,37 @@ public class Picture implements Serializable {
      * 点赞数
      */
     private Long likeCount;
+
     /**
      * 分享数
      */
     private Long shareCount;
+
+    /**
+     * 审核状态：0-待审核; 1-通过; 2-拒绝
+     */
+    private Integer reviewStatus;
+
+    /**
+     * 审核信息
+     */
+    private String reviewMessage;
+
+    /**
+     * 审核人 ID
+     */
+    private Long reviewerId;
+
+    /**
+     * 空间 id
+     */
+    private Long spaceId;
+
+    /**
+     * 审核时间
+     */
+    private Date reviewTime;
+
     /**
      * 创建时间
      */
@@ -118,34 +143,11 @@ public class Picture implements Serializable {
      */
     @TableLogic
     private Integer isDelete;
-    /**
-     * 审核状态：0-待审核; 1-通过; 2-拒绝
-     */
-    private Integer reviewStatus;
 
     /**
-     * 审核信息
+     * 浏览量
      */
-    private String reviewMessage;
-
-    /**
-     * 审核人 ID
-     */
-    private Long reviewerId;
-
-    /**
-     * 审核时间
-     */
-    private Date reviewTime;
-    /**
-     * 空间 ID
-     */
-    private Long spaceId;
-    /**
-     * 图片主色调
-     */
-    private String picColor;
-
+    private Long viewCount;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

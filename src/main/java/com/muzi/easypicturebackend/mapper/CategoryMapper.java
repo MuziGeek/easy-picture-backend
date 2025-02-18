@@ -2,6 +2,10 @@ package com.muzi.easypicturebackend.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.muzi.easypicturebackend.model.entity.Category;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 /**
 * @author 57242
@@ -10,7 +14,8 @@ import com.muzi.easypicturebackend.model.entity.Category;
 * @Entity com.muzi.easypicturebackend.model.entity.Category
 */
 public interface CategoryMapper extends BaseMapper<Category> {
-
+    @Select("select categoryName from category where isDelete = 0 and type = #{type}")
+    List<String> listCategoryByType(@Param("type") Integer type);
 }
 
 

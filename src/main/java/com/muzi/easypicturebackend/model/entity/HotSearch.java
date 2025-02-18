@@ -9,42 +9,52 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * 点赞表
- * @TableName pictureLike
+ * 热门搜索记录表
+ * @TableName hot_search
  */
-@TableName(value ="pictureLike")
+@TableName(value ="hot_search")
 @Data
-public class Picturelike implements Serializable {
+public class HotSearch implements Serializable {
     /**
-     * 主键 ID
+     * 主键
      */
     @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
-     * 用户 ID
+     * 搜索关键词
      */
-    private Long userId;
+    private String keyword;
 
     /**
-     * 图片 ID
+     * 搜索类型
      */
-    private Long pictureId;
+    private String type;
 
     /**
-     * 用户是否点赞（true 表示点赞，false 表示取消点赞）
+     * 搜索次数
      */
-    private Integer isLiked;
+    private Long count;
 
     /**
-     * 
+     * 最后更新时间
      */
-    private Date firstLikeTime;
+    private Date lastUpdateTime;
 
     /**
-     * 最近一次点赞的时间
+     * 创建时间
      */
-    private Date lastLikeTime;
+    private Date createTime;
+
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
+
+    /**
+     * 是否删除
+     */
+    private Integer isDelete;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

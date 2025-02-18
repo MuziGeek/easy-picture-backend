@@ -12,11 +12,45 @@ import java.util.List;
 * @createDate 2025-01-31 12:18:52
 */
 public interface CategoryService extends IService<Category> {
-    List<String> listCategory();
+
+    /**
+     * 获取分类列表，不传类型默认为图片分类
+     */
+    default List<String> listCategory() {
+        return listCategoryByType(0);  // 默认图片分类
+    }
+
+    /**
+     * 获取指定类型的分类列表
+     * @param type 分类类型：0-图片分类 1-帖子分类
+     */
+    List<String> listCategoryByType(Integer type);
 
     List<CategoryVO> listCategoryVO(List<Category> records);
 
     CategoryVO getCategoryVO(Category category);
 
-    List<CategoryVO> findCategory(String categoryName);
+    /**
+     * 根据名称查找分类，不传类型默认为图片分类
+     */
+    default List<CategoryVO> findCategory(String categoryName) {
+        return findCategory(categoryName, 0);  // 默认图片分类
+    }
+
+    /**
+     * 根据名称和类型查找分类
+     */
+    List<CategoryVO> findCategory(String categoryName, Integer type);
+
+    /**
+     * 添加分类，不传类型默认为图片分类
+     */
+    default boolean addCategory(String categoryName) {
+        return addCategory(categoryName, 0);  // 默认图片分类
+    }
+
+    /**
+     * 添加指定类型的分类
+     */
+    boolean addCategory(String categoryName, Integer type);
 }
