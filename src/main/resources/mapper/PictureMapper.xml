@@ -10,8 +10,7 @@
         <result property="name" column="name" jdbcType="VARCHAR"/>
         <result property="introduction" column="introduction" jdbcType="VARCHAR"/>
         <result property="category" column="category" jdbcType="VARCHAR"/>
-        <result property="tags" column="tags" jdbcType="VARCHAR"
-                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result property="tags" column="tags" jdbcType="VARCHAR"/>
         <result property="picSize" column="picSize" jdbcType="BIGINT"/>
         <result property="picWidth" column="picWidth" jdbcType="INTEGER"/>
         <result property="picHeight" column="picHeight" jdbcType="INTEGER"/>
